@@ -5,7 +5,7 @@ This is a simple desktop chat application built using PyQt5.
 
 ## Prerequisites
 - Python 3.6 or higher
-- PyQt5 library (`pip install PyQt5`)
+- PyQt5 library
 
 ## Installation
 1. **Clone the repository** (or download the files):
