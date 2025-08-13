@@ -16,12 +16,12 @@ class LoginWindow(QWidget):
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        # Create a layout for the signup form
+        # Create a layout for the login form
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)  # Add padding
         main_layout.setSpacing(20)  # Increase spacing for better separation
 
-        # Create and style the "Sign Up" label
+        # Create and style the "Login" label
         label = QLabel("Login")
         # Consistent modern font
         label.setFont(QFont("Segoe UI", 18, QFont.Bold))
@@ -92,7 +92,7 @@ class LoginWindow(QWidget):
         self.password_error.setAlignment(Qt.AlignLeft)
         main_layout.addWidget(self.password_error)
 
-        # Create and style the "Sign Up" button
+        # Create and style the "Login" button
         loginButton = QPushButton("Login")
         loginButton.setFixedWidth(100)
         loginButton.setFixedHeight(40)
