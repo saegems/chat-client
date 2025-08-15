@@ -1,6 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton
 from PyQt5.QtGui import QFont, QLinearGradient, QPalette, QColor
 from PyQt5.QtCore import Qt
+import requests
+import json
+from utils.ip_utils import get_local_ip
 
 
 class SignupWindow(QWidget):
@@ -108,6 +111,7 @@ class SignupWindow(QWidget):
                 background-color: #66BB6A; /* Lighter green on hover */
             }
         """)
+        signupButton.clicked.connect(self.signup)
         main_layout.addWidget(signupButton, alignment=Qt.AlignCenter)
 
         # Add stretch to push content to top
@@ -115,3 +119,56 @@ class SignupWindow(QWidget):
 
         # Set the layout for the widget
         self.setLayout(main_layout)
+
+    def signup(self):
+        self.username_error.setText("")
+        self.password_error.setText("")
+        username = self.username_input.text().strip()
+        password = self.password_input.text().strip()
+        ip = get_local_ip()
+        if not username:
+            self.username_error.setText("Username cannot be empty.")
+            return
+        if not password:
+            self.password_error.setText("Password cannot be empty.")
+            return
+        data = {
+            "username": username,
+            "password": password,
+            "ip": ip
+        }
+
+        try:
+            uri = "http://127.0.0.1:8080/api/users/register"
+            response = requests.post(uri,  json=data, timeout=5)
+            response.raise_for_status()
+            response_data = {}
+
+            if response.content:
+                try:
+                    response_data = response.json()
+                    print(response_data)
+                except json.JSONDecodeError:
+                    print("Response is not valid JSON")
+            else:
+                print("No body received")
+
+            if response.status_code == 200:
+                self.username_input.clear()
+                self.password_input.clear()
+                self.username_error.setText("")
+                self.password_error.setText("Signup successful!")
+            else:
+                error = response_data.get("error", "Unknown error")
+                if isinstance(error, dict):
+                    self.username_error.setText(error.get("username", ""))
+                    self.password_error.setText(error.get("password", ""))
+                else:
+                    self.username_error.setText(error)
+
+        except requests.exceptions.RequestException as e:
+            self.username_error.setText("Network error")
+            self.password_error.setText(str(e))
+        except json.JSONDecodeError:
+            self.username_error.setText("Invalid response from server")
+            self.password_error.setText("")
