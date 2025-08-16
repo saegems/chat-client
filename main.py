@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from menu import MenuWindow
 from signup import SignupWindow
 from login import LoginWindow
+from home import HomeWindow
 
 
 class MainWindow(QMainWindow):
@@ -106,9 +107,12 @@ class MainWindow(QMainWindow):
         self.menu_window = MenuWindow(self)
         self.signup_window = SignupWindow(self)
         self.login_window = LoginWindow(self)
+        self.home_window = HomeWindow(self)
+
         self.stacked_widget.addWidget(self.menu_window)
         self.stacked_widget.addWidget(self.signup_window)
         self.stacked_widget.addWidget(self.login_window)
+        self.stacked_widget.addWidget(self.home_window)
         self.stacked_widget.setCurrentWidget(self.menu_window)
         self.stacked_widget.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -133,6 +137,13 @@ class MainWindow(QMainWindow):
             self.window_history.append(self.login_window)
             self.stacked_widget.setCurrentWidget(self.login_window)
             self.back_button.setEnabled(True)
+
+    def show_home(self):
+        """Switch to the HomeWindow and update history."""
+        if self.stacked_widget.currentWidget() != self.home_window:
+            self.window_history.append(self.home_window)
+            self.stacked_widget.setCurrentWidget(self.home_window)
+            self.back_button.setEnabled(False)
 
     def go_back(self):
         """Switch to the previous window in the history."""

@@ -170,6 +170,7 @@ class LoginWindow(QWidget):
                 self.password_input.clear()
                 self.username_error.setText("")
                 self.password_error.setText("Login successful!")
+                self.parent.show_home()
             else:
                 error = response_data.get("error", "Unknown error")
                 if isinstance(error, dict):
