@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QSizePolicy
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 
@@ -10,20 +10,25 @@ class MenuWindow(QWidget):
 
         # Create a layout for the menu
         layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)  # Add padding
-        layout.setSpacing(20)  # Increase spacing for better separation
+        # Reduced padding for better scaling
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(15)  # Slightly reduced spacing for consistency
+
+        # Set consistent font with fallback
+        # Smaller font size with fallback
+        button_font = QFont("Segoe UI, Arial", 10)
 
         # Create and style the "Sign Up" button
         signupButton = QPushButton("Signup", self)
-        signupButton.setFixedWidth(100)  # Wider for better proportions
-        signupButton.setFixedHeight(40)
-        signupButton.setFont(QFont("Segoe UI", 12))
+        signupButton.setMinimumSize(120, 40)  # Minimum size instead of fixed
+        signupButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        signupButton.setFont(button_font)
         signupButton.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50; /* Green for primary action */
                 color: white;
-                border-radius: 5px; /* Rounded corners */
-                padding: 10px;
+                border-radius: 6px; /* Slightly larger for high-DPI */
+                padding: 8px; /* Adjusted for scaling */
             }
             QPushButton:hover {
                 background-color: #66BB6A; /* Lighter green on hover */
@@ -34,15 +39,15 @@ class MenuWindow(QWidget):
 
         # Create and style the "Login" button
         loginButton = QPushButton("Login", self)
-        loginButton.setFixedWidth(100)
-        loginButton.setFixedHeight(40)
-        loginButton.setFont(QFont("Segoe UI", 12))
+        loginButton.setMinimumSize(120, 40)  # Minimum size instead of fixed
+        loginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        loginButton.setFont(button_font)
         loginButton.setStyleSheet("""
             QPushButton {
                 background-color: #2196F3; /* Blue for secondary action */
                 color: white;
-                border-radius: 5px; /* Rounded corners */
-                padding: 10px;
+                border-radius: 6px; /* Slightly larger for high-DPI */
+                padding: 8px; /* Adjusted for scaling */
             }
             QPushButton:hover {
                 background-color: #42A5F5; /* Lighter blue on hover */

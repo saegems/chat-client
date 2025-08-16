@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy
 from PyQt5.QtGui import QFont, QLinearGradient, QPalette, QColor
 from PyQt5.QtCore import Qt
 import requests
@@ -21,33 +21,42 @@ class LoginWindow(QWidget):
 
         # Create a layout for the login form
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(20, 20, 20, 20)  # Add padding
-        main_layout.setSpacing(20)  # Increase spacing for better separation
+        # Reduced padding for better scaling
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(15)  # Slightly reduced spacing for consistency
+
+        # Set consistent font with fallback
+        label_font = QFont("Segoe UI, Arial", 14,
+                           QFont.Bold)  # Smaller title font
+        input_font = QFont("Segoe UI, Arial", 10)  # Smaller input font
+        error_font = QFont("Segoe UI, Arial", 8)  # Smaller error font
 
         # Create and style the "Login" label
         label = QLabel("Login")
-        # Consistent modern font
-        label.setFont(QFont("Segoe UI", 18, QFont.Bold))
+        label.setFont(label_font)
         label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        label.setStyleSheet("color: #e0e0e0;")  # Light gray for contrast
+        label.setStyleSheet("color: #e0e0e0;")
         main_layout.addWidget(label)
 
         # Create username input field
         username_label = QLabel("Username")
-        username_label.setFont(QFont("Segoe UI", 12))
+        username_label.setFont(input_font)
         username_label.setStyleSheet("color: #e0e0e0;")
         main_layout.addWidget(username_label)
 
         self.username_input = QLineEdit()
-        self.username_input.setFixedHeight(40)
-        self.username_input.setFont(QFont("Segoe UI", 12))
+        self.username_input.setMinimumSize(
+            200, 40)  # Minimum size for scalability
+        self.username_input.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.username_input.setFont(input_font)
         self.username_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2a2a3a;
                 color: #e0e0e0;
                 border: 1px solid #4a4a5a;
-                border-radius: 5px;
-                padding: 5px;
+                border-radius: 6px; /* Slightly larger for high-DPI */
+                padding: 6px; /* Adjusted for scaling */
             }
             QLineEdit:focus {
                 border: 1px solid #66BB6A; /* Green border on focus */
@@ -57,7 +66,7 @@ class LoginWindow(QWidget):
 
         # Create username error label
         self.username_error = QLabel("")
-        self.username_error.setFont(QFont("Segoe UI", 10))
+        self.username_error.setFont(error_font)
         self.username_error.setStyleSheet(
             "color: #ff5555;")  # Red for error text
         self.username_error.setAlignment(Qt.AlignLeft)
@@ -65,21 +74,24 @@ class LoginWindow(QWidget):
 
         # Create password input field
         password_label = QLabel("Password")
-        password_label.setFont(QFont("Segoe UI", 12))
+        password_label.setFont(input_font)
         password_label.setStyleSheet("color: #e0e0e0;")
         main_layout.addWidget(password_label)
 
         self.password_input = QLineEdit()
-        self.password_input.setFixedHeight(40)
-        self.password_input.setFont(QFont("Segoe UI", 12))
+        self.password_input.setMinimumSize(
+            200, 40)  # Minimum size for scalability
+        self.password_input.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.password_input.setFont(input_font)
         self.password_input.setEchoMode(QLineEdit.Password)  # Mask password
         self.password_input.setStyleSheet("""
             QLineEdit {
                 background-color: #2a2a3a;
                 color: #e0e0e0;
                 border: 1px solid #4a4a5a;
-                border-radius: 5px;
-                padding: 5px;
+                border-radius: 6px; /* Slightly larger for high-DPI */
+                padding: 6px; /* Adjusted for scaling */
             }
             QLineEdit:focus {
                 border: 1px solid #66BB6A; /* Green border on focus */
@@ -89,7 +101,7 @@ class LoginWindow(QWidget):
 
         # Create password error label
         self.password_error = QLabel("")
-        self.password_error.setFont(QFont("Segoe UI", 10))
+        self.password_error.setFont(error_font)
         self.password_error.setStyleSheet(
             "color: #ff5555;")  # Red for error text
         self.password_error.setAlignment(Qt.AlignLeft)
@@ -97,15 +109,15 @@ class LoginWindow(QWidget):
 
         # Create and style the "Login" button
         loginButton = QPushButton("Login")
-        loginButton.setFixedWidth(100)
-        loginButton.setFixedHeight(40)
-        loginButton.setFont(QFont("Segoe UI", 12))
+        loginButton.setMinimumSize(120, 40)  # Minimum size instead of fixed
+        loginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        loginButton.setFont(input_font)
         loginButton.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50; /* Green for primary action */
                 color: white;
-                border-radius: 5px; /* Rounded corners */
-                padding: 10px;
+                border-radius: 6px; /* Slightly larger for high-DPI */
+                padding: 8px; /* Adjusted for scaling */
             }
             QPushButton:hover {
                 background-color: #66BB6A; /* Lighter green on hover */
@@ -140,7 +152,7 @@ class LoginWindow(QWidget):
 
         try:
             uri = "http://127.0.0.1:8080/api/users/login"
-            response = requests.post(uri,  json=data, timeout=5)
+            response = requests.post(uri, json=data, timeout=5)
             response.raise_for_status()
             response_data = {}
 

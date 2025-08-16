@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QLabel
+from PyQt5.QtWidgets import QApplication, QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QPushButton, QWidget, QLabel, QSizePolicy
 from PyQt5.QtGui import QFont, QLinearGradient, QPalette, QColor
 from PyQt5.QtCore import Qt
 from menu import MenuWindow
@@ -11,7 +11,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Chat")
-        self.setFixedSize(400, 500)  # Updated window size
+
+        # Enable high-DPI scaling for Windows compatibility
+
+        # Set minimum and default window size instead of fixed size
+        self.setMinimumSize(300, 400)  # Minimum size for usability
+        self.resize(300, 400)  # Default size, allows resizing
 
         # Set gradient background
         palette = self.palette()
@@ -27,30 +32,37 @@ class MainWindow(QMainWindow):
         # Create a central widget and main vertical layout
         central_widget = QWidget()
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(20, 20, 20, 20)  # Add padding
-        main_layout.setSpacing(10)
+        # Reduced margins for better scaling
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(8)  # Adjusted spacing for consistency
 
         # Create a horizontal layout for the top row
         top_layout = QHBoxLayout()
 
+        # Set consistent font with fallback
+        default_font = QFont("Segoe UI", 10)  # Base font size for scalability
+        # Fallback to Arial if Segoe UI unavailable
+        default_font.setFamily("Segoe UI, Arial")
+
         # Create and add the Back button with left arrow icon
         self.back_button = QPushButton("←")  # Unicode left arrow
-        self.back_button.setFixedWidth(30)  # Smaller size
-        self.back_button.setFixedHeight(30)  # Square shape for icon
+        # Minimum size instead of fixed
+        self.back_button.setMinimumSize(30, 30)
+        self.back_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.back_button.setFont(
-            QFont("Segoe UI", 14, QFont.Bold))  # Bold for visibility
+            QFont("Segoe UI, Arial", 12, QFont.Bold))  # Smaller, bold font
         self.back_button.setStyleSheet("""
             QPushButton {
-                background-color: #b2beb5; /* Red to match close button */
+                background-color: #b2beb5;
                 color: white;
-                border-radius: 2px; /* Updated border radius */
-                padding: 5px;
+                border-radius: 4px; /* Slightly larger for high-DPI */
+                padding: 4px;
             }
             QPushButton:hover {
-                background-color: #a9a9a9; /* Lighter red on hover */
+                background-color: #a9a9a9;
             }
             QPushButton:disabled {
-                background-color: #555555; /* Gray when disabled */
+                background-color: #555555;
                 color: #888888;
             }
         """)
@@ -60,25 +72,27 @@ class MainWindow(QMainWindow):
 
         # Create and add the chat label to the top-center
         label = QLabel("Chat")
-        label.setFont(QFont("Segoe UI", 18, QFont.Bold))  # Modern font
-        label.setStyleSheet("color: #e0e0e0;")  # Light gray for contrast
+        # Smaller font for scaling
+        label.setFont(QFont("Segoe UI, Arial", 14, QFont.Bold))
+        label.setStyleSheet("color: #e0e0e0;")
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         top_layout.addWidget(label, alignment=Qt.AlignCenter)
 
         # Create and add the close button with 'X' icon to the top-right
         close_button = QPushButton("✕")  # Unicode 'X' character
-        close_button.setFixedWidth(30)  # Smaller width for icon button
-        close_button.setFixedHeight(30)  # Square shape for icon
-        # Bold for visibility
-        close_button.setFont(QFont("Segoe UI", 14, QFont.Bold))
+        close_button.setMinimumSize(30, 30)  # Minimum size instead of fixed
+        close_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # Smaller, bold font
+        close_button.setFont(QFont("Segoe UI, Arial", 12, QFont.Bold))
         close_button.setStyleSheet("""
             QPushButton {
-                background-color: #ff5555; /* Red for close button */
+                background-color: #ff5555;
                 color: white;
-                border-radius: 2px; /* Updated border radius */
-                padding: 5px;
+                border-radius: 4px; /* Slightly larger for high-DPI */
+                padding: 4px;
             }
             QPushButton:hover {
-                background-color: #ff7777; /* Lighter red on hover */
+                background-color: #ff7777;
             }
         """)
         close_button.clicked.connect(self.close)
@@ -96,6 +110,8 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.signup_window)
         self.stacked_widget.addWidget(self.login_window)
         self.stacked_widget.setCurrentWidget(self.menu_window)
+        self.stacked_widget.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.window_history.append(self.menu_window)  # Initialize history
         self.stacked_widget.currentChanged.connect(self.update_history)
         main_layout.addWidget(self.stacked_widget)
@@ -135,7 +151,10 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
