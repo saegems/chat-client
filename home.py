@@ -40,7 +40,7 @@ class HomeWindow(QWidget):
                 background-color: #C4E4E4;
             }
         """)
-        # newChatButton.clicked.connect()
+        newChatButton.clicked.connect(self.parent.show_new_chat)
         main_layout.addWidget(newChatButton, alignment=Qt.AlignCenter)
 
         # Create and style the "Existing Chats" button

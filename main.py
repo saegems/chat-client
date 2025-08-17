@@ -6,6 +6,7 @@ from menu import MenuWindow
 from signup import SignupWindow
 from login import LoginWindow
 from home import HomeWindow
+from new_chat import NewChatWindow
 
 
 class MainWindow(QMainWindow):
@@ -108,11 +109,14 @@ class MainWindow(QMainWindow):
         self.signup_window = SignupWindow(self)
         self.login_window = LoginWindow(self)
         self.home_window = HomeWindow(self)
+        self.new_chat_window = NewChatWindow(self)
 
         self.stacked_widget.addWidget(self.menu_window)
         self.stacked_widget.addWidget(self.signup_window)
         self.stacked_widget.addWidget(self.login_window)
         self.stacked_widget.addWidget(self.home_window)
+        self.stacked_widget.addWidget(self.new_chat_window)
+
         self.stacked_widget.setCurrentWidget(self.menu_window)
         self.stacked_widget.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -144,6 +148,13 @@ class MainWindow(QMainWindow):
             self.window_history.append(self.home_window)
             self.stacked_widget.setCurrentWidget(self.home_window)
             self.back_button.setEnabled(False)
+
+    def show_new_chat(self):
+        """Switch to NewChatWindow and update history."""
+        if self.stacked_widget.currentWidget() != self.new_chat_window:
+            self.window_history.append(self.new_chat_window)
+            self.stacked_widget.setCurrentWidget(self.new_chat_window)
+            self.back_button.setEnabled(True)
 
     def go_back(self):
         """Switch to the previous window in the history."""
