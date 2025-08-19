@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QSizePolicy, QApplication
 from PyQt5.QtGui import QFont, QLinearGradient, QPalette, QColor
 from PyQt5.QtGui import QTextOption
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QMetaObject, Q_ARG
 import requests
 import json
+import threading
+from utils.connect import run_websocket_client
 
 
 class NewChatWindow(QWidget):
@@ -13,20 +15,23 @@ class NewChatWindow(QWidget):
 
         # Set gradient background
         palette = self.palette()
-        gradient = QLinearGradient(0, 0, 0, 500)  # Match 400x500 window
+        gradient = QLinearGradient(0, 0, 0, 500)
         gradient.setColorAt(0, QColor("#1e1e2e"))
         gradient.setColorAt(1, QColor("#3b3b4f"))
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        self.input_font = QFont("Segoe UI, Arial", 10)
+        # Define fonts
+        self.input_font = QFont("Segoe UI, Arial", 12)
         self.button_font = QFont("Segoe UI, Arial", 12)
-        self.error_font = QFont("Segoe UI, Arial", 8)
+        self.error_font = QFont("Segoe UI, Arial", 10)
 
+        # Create main layout
         self.main_layout = QVBoxLayout()
         self.main_layout.setContentsMargins(10, 10, 10, 10)
         self.main_layout.setSpacing(15)
 
+        # Top layout for username input and Find button
         top_layout = QHBoxLayout()
 
         self.username_input = QLineEdit()
@@ -39,6 +44,7 @@ class NewChatWindow(QWidget):
                 background-color: #2a2a3a;
                 color: #e0e0e0;
                 border: 1px solid #4a4a5a;
+                border-radius: 5px;
                 padding: 6px;
             }
             QLineEdit:focus {
@@ -67,12 +73,14 @@ class NewChatWindow(QWidget):
 
         self.main_layout.addLayout(top_layout)
 
+        # Error message
         self.error_message = QLabel("")
         self.error_message.setFont(self.error_font)
         self.error_message.setStyleSheet("color: #ff5555;")
         self.error_message.setAlignment(Qt.AlignLeft)
         self.main_layout.addWidget(self.error_message)
 
+        # Message input (QTextEdit with soft-wrap)
         self.message_input = QTextEdit()
         self.message_input.setMinimumSize(200, 100)
         self.message_input.setSizePolicy(
@@ -87,6 +95,7 @@ class NewChatWindow(QWidget):
                 background-color: #2a2a3a;
                 color: #e0e0e0;
                 border: 1px solid #4a4a5a;
+                border-radius: 5px;
                 padding: 6px;
             }
             QTextEdit:focus {
@@ -96,6 +105,7 @@ class NewChatWindow(QWidget):
         self.message_input.setDisabled(True)
         self.main_layout.addWidget(self.message_input)
 
+        # Send button (created once, initially hidden)
         self.send_button = QPushButton("Send")
         self.send_button.setMinimumSize(100, 40)
         self.send_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -111,8 +121,8 @@ class NewChatWindow(QWidget):
                 background-color: #66BB6A;
             }
         """)
-        # self.send_button.clicked.connect(self.send_message)
-        self.send_button.setVisible(False)  # Hidden until change_view
+        self.send_button.clicked.connect(self.send_message)
+        self.send_button.setVisible(False)
         self.main_layout.addWidget(self.send_button, alignment=Qt.AlignRight)
 
         self.main_layout.addStretch()
@@ -163,3 +173,53 @@ class NewChatWindow(QWidget):
             self.error_message.setText(f"Network error: {str(e)}")
             self.message_input.setDisabled(True)
             self.send_button.setVisible(False)
+
+    def on_success(self):
+        """Callback for successful message send."""
+        pass  # UI updated in on_message
+
+    def on_error(self, error):
+        """Callback for WebSocket errors."""
+        QMetaObject.invokeMethod(
+            self.error_message,
+            "setText",
+            Qt.QueuedConnection,
+            Q_ARG(str, f"WebSocket error: {error}")
+        )
+
+    def on_message(self, data):
+        """Callback for WebSocket response."""
+        if data.get("status") == "success":
+            QMetaObject.invokeMethod(
+                self.message_input, "clear", Qt.QueuedConnection)
+            QMetaObject.invokeMethod(
+                self.error_message,
+                "setText",
+                Qt.QueuedConnection,
+                Q_ARG(str, "Message sent!")
+            )
+        else:
+            QMetaObject.invokeMethod(
+                self.error_message,
+                "setText",
+                Qt.QueuedConnection,
+                Q_ARG(str, data.get("message", "Unknown error"))
+            )
+
+    def send_message(self):
+        """Send a message to the WebSocket server and handle response."""
+        self.error_message.setText("")
+        message = self.message_input.toPlainText().strip()
+        username = self.username_input.text().strip()
+
+        if not message:
+            self.error_message.setText("Message cannot be empty")
+            return
+
+        thread = threading.Thread(
+            target=run_websocket_client,
+            args=(username, message, self.on_success,
+                  self.on_error, self.on_message),
+            daemon=True
+        )
+        thread.start()
