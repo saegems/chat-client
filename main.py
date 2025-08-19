@@ -128,6 +128,12 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
+    def get_username(self):
+        return self.username
+
+    def set_username(self, username):
+        self.username = username
+
     def show_signup(self):
         """Switch to the SignupWindow and update history."""
         if self.stacked_widget.currentWidget() != self.signup_window:

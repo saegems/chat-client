@@ -210,7 +210,8 @@ class NewChatWindow(QWidget):
         """Send a message to the WebSocket server and handle response."""
         self.error_message.setText("")
         message = self.message_input.toPlainText().strip()
-        username = self.username_input.text().strip()
+        sender = self.parent.get_username()
+        receiver = self.username_input.text().strip()
 
         if not message:
             self.error_message.setText("Message cannot be empty")
@@ -218,7 +219,7 @@ class NewChatWindow(QWidget):
 
         thread = threading.Thread(
             target=run_websocket_client,
-            args=(username, message, self.on_success,
+            args=(sender, receiver, message, self.on_success,
                   self.on_error, self.on_message),
             daemon=True
         )

@@ -2,12 +2,13 @@ import websocket
 import json
 
 
-def run_websocket_client(username, message, on_success, on_error, on_message):
+def run_websocket_client(sender, receiver, message, on_success, on_error, on_message):
     """Run a WebSocket client to send a message and handle responses."""
     def on_open(ws):
         """Send the message and keep connection open for response."""
         try:
-            ws.send(json.dumps({"username": username, "message": message}))
+            ws.send(json.dumps(
+                {"sender": sender, "receiver": receiver, "message": message}))
         except Exception as e:
             on_error(str(e))
 

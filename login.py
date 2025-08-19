@@ -166,6 +166,7 @@ class LoginWindow(QWidget):
                 print("No body received")
 
             if response.status_code == 200:
+                self.parent.set_username(username)
                 self.username_input.clear()
                 self.password_input.clear()
                 self.username_error.setText("")
