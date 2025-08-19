@@ -10,7 +10,7 @@ This is a simple desktop chat application built using PyQt5.
 ## Installation
 1. **Clone the repository** (or download the files):
    ```bash
-   git clone https://github.com/azeem30/chat-client.git
+   git clone https://github.com/saegems/chat-client.git
    cd chat-client
 
 2. **Install dependencies**
