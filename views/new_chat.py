@@ -16,8 +16,8 @@ class NewChatWindow(QWidget):
         # Set gradient background
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 500)
-        gradient.setColorAt(0, QColor("#1e1e2e"))
-        gradient.setColorAt(1, QColor("#3b3b4f"))
+        gradient.setColorAt(0, QColor("#E6E6FA"))  # Lavender top
+        gradient.setColorAt(1, QColor("#D8BFD8"))  # Mauve bottom
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
@@ -41,14 +41,14 @@ class NewChatWindow(QWidget):
         self.username_input.setFont(self.input_font)
         self.username_input.setStyleSheet("""
             QLineEdit {
-                background-color: #2a2a3a;
-                color: #e0e0e0;
-                border: 1px solid #4a4a5a;
+                background-color: #FFF0F5; /* Light pink */
+                color: #4B0082; /* Dark purple */
+                border: 1px solid #9370DB; /* Soft purple */
                 border-radius: 5px;
                 padding: 6px;
             }
             QLineEdit:focus {
-                border: 1px solid #66BB6A;
+                border: 1px solid #BA55D3; /* Bright purple */
             }
         """)
         top_layout.addWidget(self.username_input)
@@ -59,13 +59,13 @@ class NewChatWindow(QWidget):
         find_button.setFont(self.button_font)
         find_button.setStyleSheet("""
             QPushButton {
-                background-color: #2196F3;
-                color: white;
+                background-color: #FF69B4; /* Pink */
+                color: #4B0082; /* Dark purple */
                 border-radius: 5px;
                 padding: 8px;
             }
             QPushButton:hover {
-                background-color: #42A5F5;
+                background-color: #FFB6C1; /* Light pink */
             }
         """)
         find_button.clicked.connect(self.find_user)
@@ -76,7 +76,7 @@ class NewChatWindow(QWidget):
         # Error message
         self.error_message = QLabel("")
         self.error_message.setFont(self.error_font)
-        self.error_message.setStyleSheet("color: #ff5555;")
+        self.error_message.setStyleSheet("color: #FF4040;")  # Bright pink
         self.error_message.setAlignment(Qt.AlignLeft)
         self.main_layout.addWidget(self.error_message)
 
@@ -92,14 +92,14 @@ class NewChatWindow(QWidget):
             QTextOption.WrapAtWordBoundaryOrAnywhere)
         self.message_input.setStyleSheet("""
             QTextEdit {
-                background-color: #2a2a3a;
-                color: #e0e0e0;
-                border: 1px solid #4a4a5a;
+                background-color: #FFF0F5; /* Light pink */
+                color: #4B0082; /* Dark purple */
+                border: 1px solid #9370DB; /* Soft purple */
                 border-radius: 5px;
                 padding: 6px;
             }
             QTextEdit:focus {
-                border: 1px solid #66BB6A;
+                border: 1px solid #BA55D3; /* Bright purple */
             }
         """)
         self.message_input.setDisabled(True)
@@ -112,13 +112,13 @@ class NewChatWindow(QWidget):
         self.send_button.setFont(self.button_font)
         self.send_button.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
+                background-color: #6495ED; /* Blue */
+                color: #4B0082; /* Dark purple */
                 border-radius: 5px;
                 padding: 8px;
             }
             QPushButton:hover {
-                background-color: #66BB6A;
+                background-color: #87CEFA; /* Light blue */
             }
         """)
         self.send_button.clicked.connect(self.send_message)

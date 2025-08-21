@@ -11,125 +11,107 @@ class LoginWindow(QWidget):
         super().__init__()
         self.parent = parent
 
-        # Set gradient background to match MainWindow
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 400)
-        gradient.setColorAt(0, QColor("#1e1e2e"))  # Dark top
-        gradient.setColorAt(1, QColor("#3b3b4f"))  # Lighter bottom
+        gradient.setColorAt(0, QColor("#E6E6FA"))  # Lavender top
+        gradient.setColorAt(1, QColor("#D8BFD8"))  # Mauve bottom
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        # Create a layout for the login form
         main_layout = QVBoxLayout()
-        # Reduced padding for better scaling
         main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(15)  # Slightly reduced spacing for consistency
+        main_layout.setSpacing(15)
 
-        # Set consistent font with fallback
-        label_font = QFont("Segoe UI, Arial", 14,
-                           QFont.Bold)  # Smaller title font
-        input_font = QFont("Segoe UI, Arial", 10)  # Smaller input font
-        error_font = QFont("Segoe UI, Arial", 8)  # Smaller error font
+        label_font = QFont("Segoe UI, Arial", 14, QFont.Bold)
+        input_font = QFont("Segoe UI, Arial", 10)
+        error_font = QFont("Segoe UI, Arial", 8)
 
-        # Create and style the "Login" label
         label = QLabel("Login")
         label.setFont(label_font)
         label.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        label.setStyleSheet("color: #e0e0e0;")
+        label.setStyleSheet("color: #4B0082;")  # Dark purple
         main_layout.addWidget(label)
 
-        # Create username input field
         username_label = QLabel("Username")
         username_label.setFont(input_font)
-        username_label.setStyleSheet("color: #e0e0e0;")
+        username_label.setStyleSheet("color: #4B0082;")  # Dark purple
         main_layout.addWidget(username_label)
 
         self.username_input = QLineEdit()
-        self.username_input.setMinimumSize(
-            200, 40)  # Minimum size for scalability
+        self.username_input.setMinimumSize(200, 40)
         self.username_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.username_input.setFont(input_font)
         self.username_input.setStyleSheet("""
             QLineEdit {
-                background-color: #2a2a3a;
-                color: #e0e0e0;
-                border: 1px solid #4a4a5a;
-                border-radius: 6px; /* Slightly larger for high-DPI */
-                padding: 6px; /* Adjusted for scaling */
+                background-color: #FFF0F5; /* Light pink */
+                color: #4B0082; /* Dark purple */
+                border: 1px solid #9370DB; /* Soft purple */
+                border-radius: 6px;
+                padding: 6px;
             }
             QLineEdit:focus {
-                border: 1px solid #66BB6A; /* Green border on focus */
+                border: 1px solid #BA55D3; /* Bright purple */
             }
         """)
         main_layout.addWidget(self.username_input)
 
-        # Create username error label
         self.username_error = QLabel("")
         self.username_error.setFont(error_font)
-        self.username_error.setStyleSheet(
-            "color: #ff5555;")  # Red for error text
+        self.username_error.setStyleSheet("color: #FF4040;")  # Bright pink
         self.username_error.setAlignment(Qt.AlignLeft)
         main_layout.addWidget(self.username_error)
 
-        # Create password input field
         password_label = QLabel("Password")
         password_label.setFont(input_font)
-        password_label.setStyleSheet("color: #e0e0e0;")
+        password_label.setStyleSheet("color: #4B0082;")  # Dark purple
         main_layout.addWidget(password_label)
 
         self.password_input = QLineEdit()
-        self.password_input.setMinimumSize(
-            200, 40)  # Minimum size for scalability
+        self.password_input.setMinimumSize(200, 40)
         self.password_input.setSizePolicy(
             QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.password_input.setFont(input_font)
-        self.password_input.setEchoMode(QLineEdit.Password)  # Mask password
+        self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setStyleSheet("""
             QLineEdit {
-                background-color: #2a2a3a;
-                color: #e0e0e0;
-                border: 1px solid #4a4a5a;
-                border-radius: 6px; /* Slightly larger for high-DPI */
-                padding: 6px; /* Adjusted for scaling */
+                background-color: #FFF0F5; /* Light pink */
+                color: #4B0082; /* Dark purple */
+                border: 1px solid #9370DB; /* Soft purple */
+                border-radius: 6px;
+                padding: 6px;
             }
             QLineEdit:focus {
-                border: 1px solid #66BB6A; /* Green border on focus */
+                border: 1px solid #BA55D3; /* Bright purple */
             }
         """)
         main_layout.addWidget(self.password_input)
 
-        # Create password error label
         self.password_error = QLabel("")
         self.password_error.setFont(error_font)
-        self.password_error.setStyleSheet(
-            "color: #ff5555;")  # Red for error text
+        self.password_error.setStyleSheet("color: #FF4040;")  # Bright pink
         self.password_error.setAlignment(Qt.AlignLeft)
         main_layout.addWidget(self.password_error)
 
-        # Create and style the "Login" button
         loginButton = QPushButton("Login")
-        loginButton.setMinimumSize(120, 40)  # Minimum size instead of fixed
+        loginButton.setMinimumSize(120, 40)
         loginButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         loginButton.setFont(input_font)
         loginButton.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50; /* Green for primary action */
-                color: white;
-                border-radius: 6px; /* Slightly larger for high-DPI */
-                padding: 8px; /* Adjusted for scaling */
+                background-color: #6495ED; /* Blue */
+                color: #4B0082; /* Dark purple */
+                border-radius: 6px;
+                padding: 8px;
             }
             QPushButton:hover {
-                background-color: #66BB6A; /* Lighter green on hover */
+                background-color: #87CEFA; /* Light blue */
             }
         """)
         loginButton.clicked.connect(self.login)
         main_layout.addWidget(loginButton, alignment=Qt.AlignCenter)
 
-        # Add stretch to push content to top
         main_layout.addStretch()
-
-        # Set the layout for the widget
         self.setLayout(main_layout)
 
     def login(self):
