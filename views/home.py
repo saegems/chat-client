@@ -48,13 +48,13 @@ class HomeWindow(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.welcome_label = None
 
-        # Set background with subtle gradient
         self.setAutoFillBackground(True)
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 400)
-        gradient.setColorAt(0, QColor("#F8F6FF"))  # Very light lavender
-        gradient.setColorAt(1, QColor("#E6E6FA"))  # Lavender
+        gradient.setColorAt(0, QColor("#F8F6FF"))
+        gradient.setColorAt(1, QColor("#E6E6FA"))
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
@@ -62,19 +62,17 @@ class HomeWindow(QWidget):
         main_layout.setContentsMargins(30, 40, 30, 40)
         main_layout.setSpacing(25)
 
-        # Welcome message with username
-        welcome_label = QLabel(f"Welcome, {self.parent.get_username()}!")
-        welcome_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
-        welcome_label.setAlignment(Qt.AlignCenter)
-        welcome_label.setStyleSheet("""
+        self.welcome_label = QLabel("Welcome!")
+        self.welcome_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
+        self.welcome_label.setAlignment(Qt.AlignCenter)
+        self.welcome_label.setStyleSheet("""
             color: #4B0082;
             background: transparent;
             padding: 10px;
             margin-bottom: 5px;
         """)
-        main_layout.addWidget(welcome_label)
+        main_layout.addWidget(self.welcome_label)
 
-        # Subtitle
         subtitle_label = QLabel("What would you like to do?")
         subtitle_label.setFont(QFont("Segoe UI", 11))
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -82,7 +80,6 @@ class HomeWindow(QWidget):
             "color: #6A5ACD; background: transparent; margin-bottom: 20px;")
         main_layout.addWidget(subtitle_label)
 
-        # Button container with subtle styling
         button_container = QWidget()
         button_container.setStyleSheet("""
             background: rgba(255, 255, 255, 0.6);
@@ -93,7 +90,6 @@ class HomeWindow(QWidget):
         button_layout.setContentsMargins(20, 25, 20, 25)
         button_layout.setSpacing(20)
 
-        # Define color schemes for buttons
         new_chat_colors = {
             "normal_top": QColor("#9370DB"),
             "normal_bottom": QColor("#7B68EE"),
@@ -118,13 +114,11 @@ class HomeWindow(QWidget):
             "text": "#4B0082"
         }
 
-        # New Chat button
         newChatButton = GradientButton("Start New Chat", new_chat_colors, self)
         newChatButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         newChatButton.clicked.connect(self.parent.show_new_chat)
         button_layout.addWidget(newChatButton, alignment=Qt.AlignCenter)
 
-        # Existing Chats button
         existingChatsButton = GradientButton(
             "My Conversations", existing_chats_colors, self)
         existingChatsButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -132,14 +126,13 @@ class HomeWindow(QWidget):
             self.parent.show_existing_chats_list)
         button_layout.addWidget(existingChatsButton, alignment=Qt.AlignCenter)
 
-        # Logout button
         logoutButton = GradientButton("Logout", logout_colors, self)
         logoutButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        logoutButton.clicked.connect(self.logout)
         button_layout.addWidget(logoutButton, alignment=Qt.AlignCenter)
 
         main_layout.addWidget(button_container)
 
-        # Decorative element
         decoration = QLabel("💬")
         decoration.setAlignment(Qt.AlignCenter)
         decoration.setFont(QFont("Segoe UI", 24))
@@ -147,7 +140,23 @@ class HomeWindow(QWidget):
             "color: #B19CD9; background: transparent; margin-top: 20px;")
         main_layout.addWidget(decoration)
 
-        # Add some spacing at the bottom
         main_layout.addStretch()
 
         self.setLayout(main_layout)
+
+    def showEvent(self, event):
+        """Override showEvent to update the username when the window is shown"""
+        super().showEvent(event)
+        self.update_welcome_message()
+
+    def update_welcome_message(self):
+        """Update the welcome message with the current username"""
+        username = self.parent.get_username()
+        if username:
+            self.welcome_label.setText(f"Welcome, {username}!")
+        else:
+            self.welcome_label.setText("Welcome!")
+
+    def logout(self):
+        self.parent.set_username("")
+        self.parent.show_menu()

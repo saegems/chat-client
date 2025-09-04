@@ -168,6 +168,12 @@ class MainWindow(QMainWindow):
     def set_username(self, username):
         self.username = username
 
+    def show_menu(self):
+        if self.stacked_widget.currentWidget() != self.menu_window:
+            self.animate_transition(self.menu_window)
+            self.window_history.append(self.menu_window)
+            self.back_button.setEnabled(False)
+
     def show_signup(self):
         if self.stacked_widget.currentWidget() != self.signup_window:
             self.animate_transition(self.signup_window)
