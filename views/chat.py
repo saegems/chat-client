@@ -215,9 +215,59 @@ class ChatWindow(QWidget):
         main_layout.addWidget(input_container)
 
         self.setLayout(main_layout)
-        self.add_message(
-            "System", "Chat started. Ready to send and receive messages.", "Now", False)
+        self.load_previous_chats()
         self.connect_websocket()
+
+    def load_previous_chats(self):
+        """Load the previous chats between the two users"""
+        try:
+            uri = "http://127.0.0.1:8080/api/chats/messages"
+            params = {"senderUsername": self.current_username,
+                      "receiverUsername": self.chat_username}
+            response = requests.get(uri, params=params, timeout=5)
+            response.raise_for_status()
+
+            response_data = {}
+            if response.content:
+                try:
+                    response_data = response.json()
+                except json.JSONDecodeError:
+                    print("Response is not valid JSON")
+                    self.add_message(
+                        "System", "Invalid response from server", "Now", False)
+                    return
+            else:
+                print("No body received")
+                self.add_message(
+                    "System", "No messages received from server", "Now", False)
+                return
+
+            if response.status_code == 200:
+                messages = response_data.get("messages", [])
+                if not messages:
+                    self.add_message(
+                        "System", "No previous messages found", "Now", False)
+                    return
+
+                for message in messages:
+                    sender = message.get("sender", {}).get(
+                        "username", "Unknown")
+                    text = message.get("text", "")
+                    time_str = message.get("time", "Unknown")
+                    is_own_message = (sender == self.current_username)
+                    self.add_message(sender, text, time_str, is_own_message)
+
+            else:
+                error = response_data.get("error", "Unknown error")
+                self.add_message("System", f"Error loading messages: {
+                                 error}", "Now", False)
+
+        except requests.exceptions.RequestException as e:
+            self.add_message("System", f"Network error: {
+                             str(e)}", "Now", False)
+        except Exception as e:
+            self.add_message("System", f"Error: {str(e)}", "Now", False)
+            print(str(e))
 
     def connect_websocket(self):
         """Connect to WebSocket server"""
