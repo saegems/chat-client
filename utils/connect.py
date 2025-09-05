@@ -1,33 +1,35 @@
 import websocket
 import json
+import threading
+import time
 
 
 def run_websocket_client(sender, receiver, message, on_success, on_error, on_message):
     """Run a WebSocket client to send a message and handle responses."""
+
     def on_open(ws):
-        """Send the message and keep connection open for response."""
         try:
             ws.send(json.dumps(
                 {"sender": sender, "receiver": receiver, "message": message}))
         except Exception as e:
             on_error(str(e))
+            ws.close()
 
     def on_message_handler(ws, message):
-        """Handle incoming messages."""
         try:
             data = json.loads(message)
-            on_message(data)
+            if data.get("status") != "welcome":
+                on_message(data)
+            time.sleep(0.1)  # Brief delay
+            ws.close()
         except json.JSONDecodeError:
             on_error("Invalid response format")
-        finally:
             ws.close()
 
     def on_error_handler(ws, error):
-        """Handle WebSocket errors."""
         on_error(str(error))
 
     def on_close(ws, close_status_code, close_msg):
-        """Handle connection closure."""
         pass
 
     try:
@@ -39,6 +41,10 @@ def run_websocket_client(sender, receiver, message, on_success, on_error, on_mes
             on_error=on_error_handler,
             on_close=on_close
         )
-        websocket_client.run_forever()
+
+        wst = threading.Thread(target=websocket_client.run_forever)
+        wst.daemon = True
+        wst.start()
+
     except Exception as e:
         on_error(f"Connection error: {str(e)}")

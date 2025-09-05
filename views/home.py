@@ -15,30 +15,24 @@ class GradientButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Create rounded rectangle path
         path = QPainterPath()
         path.addRoundedRect(2, 2, self.width()-4, self.height()-4, 12, 12)
 
-        # Create gradient background
         gradient = QLinearGradient(0, 0, 0, self.height())
 
         if self.isEnabled():
             if self.underMouse():
-                # Hover state gradient
                 gradient.setColorAt(0, self.color_scheme["hover_top"])
                 gradient.setColorAt(1, self.color_scheme["hover_bottom"])
             else:
-                # Normal state gradient
                 gradient.setColorAt(0, self.color_scheme["normal_top"])
                 gradient.setColorAt(1, self.color_scheme["normal_bottom"])
         else:
-            # Disabled state
             gradient.setColorAt(0, QColor("#D3D3D3"))
             gradient.setColorAt(1, QColor("#C0C0C0"))
 
         painter.fillPath(path, gradient)
 
-        # Draw text
         painter.setPen(QColor(self.color_scheme["text"]))
         painter.setFont(self.font())
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())

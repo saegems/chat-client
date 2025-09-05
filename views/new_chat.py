@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QMetaObject, Q_ARG
 import requests
 import json
 import threading
-from utils.connect import run_websocket_client
+from utils.websocket_client import PersistentWebSocketClient
 
 
 class RoundedLineEdit(QLineEdit):
@@ -16,24 +16,20 @@ class RoundedLineEdit(QLineEdit):
         self.setPlaceholderText(placeholder)
 
     def paintEvent(self, event):
-        # Let the base class handle the text rendering
         super().paintEvent(event)
 
-        # Draw rounded border
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(Qt.NoPen)
 
-        # Create rounded rectangle path for border
         path = QPainterPath()
         path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
 
-        # Draw border based on focus state
         if self.hasFocus():
-            painter.setPen(QColor("#7B68EE"))  # Purple border when focused
+            painter.setPen(QColor("#7B68EE"))
             painter.setBrush(Qt.NoBrush)
         else:
-            painter.setPen(QColor("#D8BFD8"))  # Light purple border
+            painter.setPen(QColor("#D8BFD8"))
             painter.setBrush(Qt.NoBrush)
 
         painter.drawPath(path)
@@ -47,24 +43,20 @@ class RoundedTextEdit(QTextEdit):
         self.setPlaceholderText(placeholder)
 
     def paintEvent(self, event):
-        # Let the base class handle the text rendering
         super().paintEvent(event)
 
-        # Draw rounded border
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(Qt.NoPen)
 
-        # Create rounded rectangle path for border
         path = QPainterPath()
         path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
 
-        # Draw border based on focus state
         if self.hasFocus():
-            painter.setPen(QColor("#7B68EE"))  # Purple border when focused
+            painter.setPen(QColor("#7B68EE"))
             painter.setBrush(Qt.NoBrush)
         else:
-            painter.setPen(QColor("#D8BFD8"))  # Light purple border
+            painter.setPen(QColor("#D8BFD8"))
             painter.setBrush(Qt.NoBrush)
 
         painter.drawPath(path)
@@ -82,30 +74,24 @@ class GradientButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Create rounded rectangle path
         path = QPainterPath()
         path.addRoundedRect(2, 2, self.width()-4, self.height()-4, 10, 10)
 
-        # Create gradient background
         gradient = QLinearGradient(0, 0, 0, self.height())
 
         if self.isEnabled():
             if self.underMouse():
-                # Hover state gradient
                 gradient.setColorAt(0, self.color_scheme["hover_top"])
                 gradient.setColorAt(1, self.color_scheme["hover_bottom"])
             else:
-                # Normal state gradient
                 gradient.setColorAt(0, self.color_scheme["normal_top"])
                 gradient.setColorAt(1, self.color_scheme["normal_bottom"])
         else:
-            # Disabled state
             gradient.setColorAt(0, QColor("#D3D3D3"))
             gradient.setColorAt(1, QColor("#C0C0C0"))
 
         painter.fillPath(path, gradient)
 
-        # Draw text
         painter.setPen(QColor(self.color_scheme["text"]))
         painter.setFont(self.font())
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())
@@ -115,22 +101,21 @@ class NewChatWindow(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.websocket_client = None
+        self.message_sent = False
 
-        # Set background with subtle gradient
         self.setAutoFillBackground(True)
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 500)
-        gradient.setColorAt(0, QColor("#F5F0FF"))  # Very light lavender
-        gradient.setColorAt(1, QColor("#E6E6FA"))  # Lavender
+        gradient.setColorAt(0, QColor("#F5F0FF"))
+        gradient.setColorAt(1, QColor("#E6E6FA"))
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        # Create main layout
         self.main_layout = QVBoxLayout()
         self.main_layout.setContentsMargins(25, 25, 25, 25)
         self.main_layout.setSpacing(20)
 
-        # Title
         title_label = QLabel("Start a New Chat")
         title_label.setFont(QFont("Segoe UI", 16, QFont.Bold))
         title_label.setAlignment(Qt.AlignCenter)
@@ -138,7 +123,6 @@ class NewChatWindow(QWidget):
             "color: #4B0082; background: transparent; margin-bottom: 10px;")
         self.main_layout.addWidget(title_label)
 
-        # Form container
         form_container = QWidget()
         form_container.setStyleSheet("""
             background: rgba(255, 255, 255, 0.7);
@@ -149,14 +133,12 @@ class NewChatWindow(QWidget):
         form_layout.setContentsMargins(20, 20, 20, 20)
         form_layout.setSpacing(15)
 
-        # Username section
         username_label = QLabel("Find User")
         username_label.setFont(QFont("Segoe UI", 11, QFont.Medium))
         username_label.setStyleSheet(
             "color: #6A5ACD; background: transparent;")
         form_layout.addWidget(username_label)
 
-        # Top layout for username input and Find button
         top_layout = QHBoxLayout()
         top_layout.setSpacing(10)
 
@@ -171,7 +153,6 @@ class NewChatWindow(QWidget):
         """)
         top_layout.addWidget(self.username_input)
 
-        # Find button colors
         find_button_colors = {
             "normal_top": QColor("#7B68EE"),
             "normal_bottom": QColor("#6A5ACD"),
@@ -186,7 +167,6 @@ class NewChatWindow(QWidget):
 
         form_layout.addLayout(top_layout)
 
-        # Error message
         self.error_message = QLabel("")
         self.error_message.setFont(QFont("Segoe UI", 10))
         self.error_message.setStyleSheet(
@@ -195,7 +175,6 @@ class NewChatWindow(QWidget):
         self.error_message.setWordWrap(True)
         form_layout.addWidget(self.error_message)
 
-        # Message section
         message_label = QLabel("Your Message")
         message_label.setFont(QFont("Segoe UI", 11, QFont.Medium))
         message_label.setStyleSheet("color: #6A5ACD; background: transparent;")
@@ -217,7 +196,6 @@ class NewChatWindow(QWidget):
         self.message_input.setDisabled(True)
         form_layout.addWidget(self.message_input)
 
-        # Send button (created once, initially hidden)
         send_button_colors = {
             "normal_top": QColor("#FF69B4"),
             "normal_bottom": QColor("#FF1493"),
@@ -241,7 +219,6 @@ class NewChatWindow(QWidget):
         self.error_message.setText("")
         self.message_input.setDisabled(False)
         self.send_button.setVisible(True)
-        # Change error message to success style
         self.error_message.setStyleSheet(
             "color: #2E8B57; background: transparent;")
         self.error_message.setText("✓ User found! You can now send a message.")
@@ -288,28 +265,13 @@ class NewChatWindow(QWidget):
             self.message_input.setDisabled(True)
             self.send_button.setVisible(False)
 
-    def on_success(self):
-        """Callback for successful message send."""
-        pass  # UI updated in on_message
-
-    def on_error(self, error):
-        """Callback for WebSocket errors."""
-        QMetaObject.invokeMethod(
-            self.error_message,
-            "setText",
-            Qt.QueuedConnection,
-            Q_ARG(str, f"WebSocket error: {error}")
-        )
-        QMetaObject.invokeMethod(
-            self.error_message,
-            "setStyleSheet",
-            Qt.QueuedConnection,
-            Q_ARG(str, "color: #FF4500; background: transparent;")
-        )
-
-    def on_message(self, data):
-        """Callback for WebSocket response."""
-        if data.get("status") == "success":
+    def handle_websocket_message(self, data):
+        """Handle incoming WebSocket messages."""
+        print(f"Received WebSocket message: {data}")
+        if data.get("status") == "welcome":
+            return
+        if data.get("status") == "delivered":
+            self.message_sent = True
             QMetaObject.invokeMethod(
                 self.message_input, "clear", Qt.QueuedConnection
             )
@@ -325,25 +287,39 @@ class NewChatWindow(QWidget):
                 Qt.QueuedConnection,
                 Q_ARG(str, "color: #2E8B57; background: transparent;")
             )
-        else:
-            QMetaObject.invokeMethod(
-                self.error_message,
-                "setText",
-                Qt.QueuedConnection,
-                Q_ARG(str, data.get("message", "Unknown error"))
-            )
-            QMetaObject.invokeMethod(
-                self.error_message,
-                "setStyleSheet",
-                Qt.QueuedConnection,
-                Q_ARG(str, "color: #FF4500; background: transparent;")
-            )
+            if self.websocket_client:
+                self.websocket_client.close()
+                self.websocket_client = None
+
+    def handle_websocket_error(self, error_message):
+        """Handle WebSocket errors."""
+        QMetaObject.invokeMethod(
+            self.error_message,
+            "setText",
+            Qt.QueuedConnection,
+            Q_ARG(str, f"WebSocket error: {error_message}")
+        )
+        QMetaObject.invokeMethod(
+            self.error_message,
+            "setStyleSheet",
+            Qt.QueuedConnection,
+            Q_ARG(str, "color: #FF4500; background: transparent;")
+        )
+
+        if self.websocket_client:
+            self.websocket_client.close()
+            self.websocket_client = None
+
+    def update_connection_status(self, status, tooltip):
+        """Update the connection status indicator."""
+        pass
 
     def send_message(self):
-        """Send a message to the WebSocket server and handle response."""
+        """Send a message using the persistent WebSocket client."""
         self.error_message.setText("")
         self.error_message.setStyleSheet(
             "color: #FF4500; background: transparent;")
+
         message = self.message_input.toPlainText().strip()
         sender = self.parent.get_username()
         receiver = self.username_input.text().strip()
@@ -352,10 +328,36 @@ class NewChatWindow(QWidget):
             self.error_message.setText("Please enter a message")
             return
 
-        thread = threading.Thread(
-            target=run_websocket_client,
-            args=(sender, receiver, message, self.on_success,
-                  self.on_error, self.on_message),
-            daemon=True
-        )
-        thread.start()
+        if not sender:
+            self.error_message.setText("No user logged in")
+            return
+
+        if not self.websocket_client:
+            self.websocket_client = PersistentWebSocketClient(sender)
+            self.websocket_client.message_received.connect(
+                self.handle_websocket_message)
+            self.websocket_client.error_occurred.connect(
+                self.handle_websocket_error)
+
+            if not self.websocket_client.connect(receiver):
+                self.error_message.setText("Failed to connect to chat server")
+                return
+
+        if self.websocket_client.send_message(receiver, message):
+            self.error_message.setText("Sending message...")
+            self.error_message.setStyleSheet(
+                "color: #FFD93D; background: transparent;")
+        else:
+            self.error_message.setText("Failed to send message")
+            self.error_message.setStyleSheet(
+                "color: #FF4500; background: transparent;")
+
+            if self.websocket_client:
+                self.websocket_client.close()
+                self.websocket_client = None
+
+    def closeEvent(self, event):
+        """Clean up WebSocket connection when window is closed."""
+        if self.websocket_client:
+            self.websocket_client.close()
+        event.accept()

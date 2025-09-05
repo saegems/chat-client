@@ -24,7 +24,6 @@ class RoundedButton(QPushButton):
 
         if self.isEnabled():
             if self.underMouse():
-                # Darker purple on hover
                 painter.fillPath(path, QColor("#5E4B8B"))
             else:
                 painter.fillPath(path, QColor("#6B5B95"))  # Medium purple
@@ -42,15 +41,12 @@ class MainWindow(QMainWindow):
         self.username = ""
 
         self.setWindowTitle("Chat")
-        self.setWindowFlags(Qt.FramelessWindowHint)  # Remove default title bar
-        # Enable translucent background
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        # Set minimum and default window size
         self.setMinimumSize(320, 480)
         self.resize(320, 520)
 
-        # Create central widget with rounded corners
         self.central_widget = QWidget()
         self.central_widget.setObjectName("CentralWidget")
         self.central_widget.setStyleSheet("""
@@ -63,15 +59,12 @@ class MainWindow(QMainWindow):
         """)
         self.setCentralWidget(self.central_widget)
 
-        # Initialize window history with MenuWindow
         self.window_history = []
 
-        # Create main vertical layout
         main_layout = QVBoxLayout(self.central_widget)
         main_layout.setContentsMargins(16, 16, 16, 16)
         main_layout.setSpacing(12)
 
-        # Create custom title bar
         title_bar = QWidget()
         title_bar.setFixedHeight(40)
         title_bar.setStyleSheet("background: transparent;")
@@ -79,7 +72,6 @@ class MainWindow(QMainWindow):
         title_bar_layout.setContentsMargins(0, 0, 0, 0)
         title_bar_layout.setSpacing(8)
 
-        # Back button
         self.back_button = RoundedButton("←")
         self.back_button.setFixedSize(32, 32)
         self.back_button.setFont(QFont("Segoe UI", 14, QFont.Bold))
@@ -87,7 +79,6 @@ class MainWindow(QMainWindow):
         self.back_button.setEnabled(False)
         title_bar_layout.addWidget(self.back_button)
 
-        # Title label with subtle shadow effect
         title_label = QLabel("Chat")
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("""
@@ -100,10 +91,8 @@ class MainWindow(QMainWindow):
             }
         """)
         title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
-        # Stretch factor 1 to center
         title_bar_layout.addWidget(title_label, 1)
 
-        # Close button
         self.close_button = RoundedButton("✕")
         self.close_button.setFixedSize(32, 32)
         self.close_button.setFont(QFont("Segoe UI", 12, QFont.Bold))
@@ -112,7 +101,6 @@ class MainWindow(QMainWindow):
 
         main_layout.addWidget(title_bar)
 
-        # Create and add the stacked widget with subtle frame
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.setStyleSheet("""
             QStackedWidget {
@@ -122,7 +110,6 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        # Initialize windows
         self.menu_window = MenuWindow(self)
         self.signup_window = SignupWindow(self)
         self.login_window = LoginWindow(self)
@@ -130,7 +117,6 @@ class MainWindow(QMainWindow):
         self.new_chat_window = NewChatWindow(self)
         self.existing_chats_window = ChatList(self)
 
-        # Add windows to stacked widget
         self.stacked_widget.addWidget(self.menu_window)
         self.stacked_widget.addWidget(self.signup_window)
         self.stacked_widget.addWidget(self.login_window)
@@ -138,14 +124,12 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.new_chat_window)
         self.stacked_widget.addWidget(self.existing_chats_window)
 
-        # Set initial window
         self.stacked_widget.setCurrentWidget(self.menu_window)
         self.window_history.append(self.menu_window)
         self.stacked_widget.currentChanged.connect(self.update_history)
 
         main_layout.addWidget(self.stacked_widget)
 
-        # Variables for window dragging
         self.old_pos = None
 
     def mousePressEvent(self, event):
@@ -205,17 +189,10 @@ class MainWindow(QMainWindow):
             self.back_button.setEnabled(True)
 
     def animate_transition(self, new_window):
-        # Create slide animation for smoother transitions
         current_index = self.stacked_widget.currentIndex()
         new_index = self.stacked_widget.indexOf(new_window)
-
-        # Determine animation direction
         direction = "left" if new_index > current_index else "right"
-
-        # Set the new widget
         self.stacked_widget.setCurrentWidget(new_window)
-
-        # Simple fade effect (could be enhanced with proper animation)
         self.stacked_widget.setStyleSheet("""
             QStackedWidget {
                 background: rgba(255, 255, 255, 0.7);

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 import requests
 import json
 from components.chat_list_item import ChatListItem
+from views.chat import ChatWindow
 
 
 class ChatList(QWidget):
@@ -11,22 +12,20 @@ class ChatList(QWidget):
         super().__init__()
         self.parent = parent
         self.chats_fetched = False
+        self.open_chat_windows = {}
 
-        # Set background with subtle gradient
         self.setAutoFillBackground(True)
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 500)
-        gradient.setColorAt(0, QColor("#F8F6FF"))  # Very light lavender
-        gradient.setColorAt(1, QColor("#E6E6FA"))  # Lavender
+        gradient.setColorAt(0, QColor("#F8F6FF"))
+        gradient.setColorAt(1, QColor("#E6E6FA"))
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        # Create main layout
         self.main_layout = QVBoxLayout()
         self.main_layout.setContentsMargins(20, 20, 20, 20)
         self.main_layout.setSpacing(15)
 
-        # Title with improved styling
         title_label = QLabel("Your Conversations")
         title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
         title_label.setAlignment(Qt.AlignCenter)
@@ -38,7 +37,6 @@ class ChatList(QWidget):
         """)
         self.main_layout.addWidget(title_label)
 
-        # Error message with better styling
         self.chats_error = QLabel("")
         self.chats_error.setFont(QFont("Segoe UI", 10))
         self.chats_error.setStyleSheet("""
@@ -53,7 +51,6 @@ class ChatList(QWidget):
         self.chats_error.hide()  # Initially hidden
         self.main_layout.addWidget(self.chats_error)
 
-        # Create scroll area for chats
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setStyleSheet("""
@@ -77,7 +74,6 @@ class ChatList(QWidget):
             }
         """)
 
-        # Container for chat items
         self.chats_container = QWidget()
         self.chats_layout = QVBoxLayout(self.chats_container)
         self.chats_layout.setContentsMargins(5, 5, 5, 5)
@@ -87,7 +83,6 @@ class ChatList(QWidget):
         self.scroll_area.setWidget(self.chats_container)
         self.main_layout.addWidget(self.scroll_area)
 
-        # Loading indicator (initially hidden)
         self.loading_label = QLabel("Loading conversations...")
         self.loading_label.setFont(QFont("Segoe UI", 11))
         self.loading_label.setStyleSheet(
@@ -117,13 +112,11 @@ class ChatList(QWidget):
             self.show_error("No user logged in")
             return
 
-        # Clear existing chats (except the stretch)
         for i in reversed(range(self.chats_layout.count())):
             item = self.chats_layout.itemAt(i)
             if item.widget():
                 item.widget().deleteLater()
 
-        # Show loading state
         self.loading_label.show()
         self.chats_error.hide()
 
@@ -155,7 +148,6 @@ class ChatList(QWidget):
                         "No conversations yet. Start a new chat to begin!")
                     return
 
-                # Add chat items
                 for chat in chats:
                     display_username = (
                         chat.get("receiver", {}).get("username", "Unknown")
@@ -166,8 +158,10 @@ class ChatList(QWidget):
                         username=display_username,
                         message=chat.get("text", ""),
                         time=chat.get("time", ""),
+                        current_username=username,
                         parent=self
                     )
+                    chat_item.clicked.connect(self.open_chat)
                     self.chats_layout.insertWidget(
                         self.chats_layout.count() - 1, chat_item)
 
@@ -184,6 +178,25 @@ class ChatList(QWidget):
             self.show_error("Invalid response from server")
         finally:
             self.loading_label.hide()
+
+    def open_chat(self, chat_username, current_username):
+        """Open a chat window for the selected conversation"""
+        if chat_username in self.open_chat_windows:
+            self.open_chat_windows[chat_username].raise_()
+            self.open_chat_windows[chat_username].activateWindow()
+            return
+
+        chat_window = ChatWindow(self, chat_username, current_username)
+        chat_window.setWindowTitle(f"Chat with {chat_username}")
+        chat_window.setWindowFlags(Qt.Window)
+
+        chat_window.destroyed.connect(
+            lambda: self.open_chat_windows.pop(chat_username, None)
+        )
+
+        self.open_chat_windows[chat_username] = chat_window
+
+        chat_window.show()
 
     def show_error(self, message):
         """Display error message with appropriate styling"""

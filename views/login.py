@@ -13,24 +13,20 @@ class RoundedLineEdit(QLineEdit):
         self.setFont(QFont("Segoe UI", 10))
 
     def paintEvent(self, event):
-        # Let the base class handle the text rendering
         super().paintEvent(event)
 
-        # Draw rounded border
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setPen(Qt.NoPen)
 
-        # Create rounded rectangle path for border
         path = QPainterPath()
         path.addRoundedRect(0, 0, self.width(), self.height(), 10, 10)
 
-        # Draw border based on focus state
         if self.hasFocus():
-            painter.setPen(QColor("#FF69B4"))  # Pink border when focused
+            painter.setPen(QColor("#FF69B4"))
             painter.setBrush(Qt.NoBrush)
         else:
-            painter.setPen(QColor("#FFB6C1"))  # Light pink border
+            painter.setPen(QColor("#FFB6C1"))
             painter.setBrush(Qt.NoBrush)
 
         painter.drawPath(path)
@@ -48,30 +44,24 @@ class GradientButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # Create rounded rectangle path
         path = QPainterPath()
         path.addRoundedRect(2, 2, self.width()-4, self.height()-4, 12, 12)
 
-        # Create gradient background
         gradient = QLinearGradient(0, 0, 0, self.height())
 
         if self.isEnabled():
             if self.underMouse():
-                # Hover state gradient
                 gradient.setColorAt(0, self.color_scheme["hover_top"])
                 gradient.setColorAt(1, self.color_scheme["hover_bottom"])
             else:
-                # Normal state gradient
                 gradient.setColorAt(0, self.color_scheme["normal_top"])
                 gradient.setColorAt(1, self.color_scheme["normal_bottom"])
         else:
-            # Disabled state
             gradient.setColorAt(0, QColor("#D3D3D3"))
             gradient.setColorAt(1, QColor("#C0C0C0"))
 
         painter.fillPath(path, gradient)
 
-        # Draw text
         painter.setPen(QColor(self.color_scheme["text"]))
         painter.setFont(self.font())
         painter.drawText(self.rect(), Qt.AlignCenter, self.text())
@@ -82,12 +72,11 @@ class LoginWindow(QWidget):
         super().__init__()
         self.parent = parent
 
-        # Set background with subtle gradient
         self.setAutoFillBackground(True)
         palette = self.palette()
         gradient = QLinearGradient(0, 0, 0, 400)
-        gradient.setColorAt(0, QColor("#FFF0F5"))  # Very light pink
-        gradient.setColorAt(1, QColor("#FFE4E9"))  # Light pink
+        gradient.setColorAt(0, QColor("#FFF0F5"))
+        gradient.setColorAt(1, QColor("#FFE4E9"))
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
@@ -95,7 +84,6 @@ class LoginWindow(QWidget):
         main_layout.setContentsMargins(30, 30, 30, 30)
         main_layout.setSpacing(20)
 
-        # Title with improved styling
         title_label = QLabel("Welcome Back")
         title_label.setFont(QFont("Segoe UI", 18, QFont.Bold))
         title_label.setAlignment(Qt.AlignCenter)
@@ -107,7 +95,6 @@ class LoginWindow(QWidget):
         """)
         main_layout.addWidget(title_label)
 
-        # Subtitle
         subtitle_label = QLabel("Sign in to continue chatting")
         subtitle_label.setFont(QFont("Segoe UI", 10))
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -115,7 +102,6 @@ class LoginWindow(QWidget):
             "color: #9370DB; background: transparent; margin-bottom: 15px;")
         main_layout.addWidget(subtitle_label)
 
-        # Form container with subtle border
         form_container = QWidget()
         form_container.setStyleSheet("""
             background: rgba(255, 255, 255, 0.7);
@@ -126,7 +112,6 @@ class LoginWindow(QWidget):
         form_layout.setContentsMargins(20, 20, 20, 20)
         form_layout.setSpacing(15)
 
-        # Username section
         username_label = QLabel("Username")
         username_label.setFont(QFont("Segoe UI", 10, QFont.Medium))
         username_label.setStyleSheet(
@@ -153,7 +138,6 @@ class LoginWindow(QWidget):
         self.username_error.setWordWrap(True)
         form_layout.addWidget(self.username_error)
 
-        # Password section
         password_label = QLabel("Password")
         password_label.setFont(QFont("Segoe UI", 10, QFont.Medium))
         password_label.setStyleSheet(
@@ -183,7 +167,6 @@ class LoginWindow(QWidget):
 
         main_layout.addWidget(form_container)
 
-        # Login button with gradient
         button_colors = {
             "normal_top": QColor("#FF69B4"),
             "normal_bottom": QColor("#FF1493"),
@@ -197,7 +180,6 @@ class LoginWindow(QWidget):
         loginButton.clicked.connect(self.login)
         main_layout.addWidget(loginButton, alignment=Qt.AlignCenter)
 
-        # Add some spacing at the bottom
         main_layout.addStretch()
 
         self.setLayout(main_layout)
