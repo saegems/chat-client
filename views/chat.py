@@ -8,6 +8,7 @@ import requests
 import time
 from components.message import MessageWidget
 from utils.websocket_client import PersistentWebSocketClient
+from utils.format import formatDate
 
 
 class RoundedLineEdit(QLineEdit):
@@ -254,8 +255,11 @@ class ChatWindow(QWidget):
                         "username", "Unknown")
                     text = message.get("text", "")
                     time_str = message.get("time", "Unknown")
+                    formatted_time_str = formatDate(time_str)
+                    print(formatted_time_str)
                     is_own_message = (sender == self.current_username)
-                    self.add_message(sender, text, time_str, is_own_message)
+                    self.add_message(
+                        sender, text, formatted_time_str, is_own_message)
 
             else:
                 error = response_data.get("error", "Unknown error")
@@ -289,6 +293,7 @@ class ChatWindow(QWidget):
             receiver = data.get("receiver", "")
             message = data.get("message", "")
             time_str = data.get("time", "Now")
+            formatted_time_str = formatDate(time_str)
 
             if (sender == self.current_username and
                 receiver == self.chat_username and
@@ -309,9 +314,10 @@ class ChatWindow(QWidget):
             sender = data.get("sender", "")
             message = data.get("message", "")
             time_str = data.get("time", "Now")
+            formatted_time_str = formatDate(time_str)
 
             print(f"Adding incoming message from {sender}: {message}")
-            self.add_message(sender, message, time_str, False)
+            self.add_message(sender, message, formatted_time_str, False)
 
     def update_connection_status(self, status, tooltip):
         """Update the connection status indicator"""
