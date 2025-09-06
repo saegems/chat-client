@@ -8,7 +8,7 @@ class RoundedButton(QPushButton):
         super().__init__(text, parent)
         self.color_scheme = color_scheme
         self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumSize(140, 48)
+        self.setMinimumSize(150, 48)
         self.setFont(QFont("Segoe UI", 12, QFont.Bold))
 
     def paintEvent(self, event):
