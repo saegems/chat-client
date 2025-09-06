@@ -8,6 +8,7 @@ from views.login import LoginWindow
 from views.home import HomeWindow
 from views.new_chat import NewChatWindow
 from views.chat_list import ChatList
+from views.profile import Profile
 
 
 class RoundedButton(QPushButton):
@@ -116,6 +117,7 @@ class MainWindow(QMainWindow):
         self.home_window = HomeWindow(self)
         self.new_chat_window = NewChatWindow(self)
         self.existing_chats_window = ChatList(self)
+        self.profile_window = Profile(self)
 
         self.stacked_widget.addWidget(self.menu_window)
         self.stacked_widget.addWidget(self.signup_window)
@@ -123,6 +125,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.home_window)
         self.stacked_widget.addWidget(self.new_chat_window)
         self.stacked_widget.addWidget(self.existing_chats_window)
+        self.stacked_widget.addWidget(self.profile_window)
 
         self.stacked_widget.setCurrentWidget(self.menu_window)
         self.window_history.append(self.menu_window)
@@ -186,6 +189,12 @@ class MainWindow(QMainWindow):
         if self.stacked_widget.currentWidget() != self.existing_chats_window:
             self.animate_transition(self.existing_chats_window)
             self.window_history.append(self.existing_chats_window)
+            self.back_button.setEnabled(True)
+
+    def show_profile(self):
+        if self.stacked_widget.currentWidget() != self.profile_window:
+            self.animate_transition(self.profile_window)
+            self.window_history.append(self.profile_window)
             self.back_button.setEnabled(True)
 
     def animate_transition(self, new_window):

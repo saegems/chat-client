@@ -8,7 +8,7 @@ class GradientButton(QPushButton):
         super().__init__(text, parent)
         self.color_scheme = color_scheme
         self.setCursor(Qt.PointingHandCursor)
-        self.setMinimumSize(160, 50)
+        self.setMinimumSize(180, 50)
         self.setFont(QFont("Segoe UI", 12, QFont.Bold))
 
     def paintEvent(self, event):
@@ -100,6 +100,14 @@ class HomeWindow(QWidget):
             "text": "#FFFFFF"
         }
 
+        profile_colors = {
+            "normal_top": QColor("#FF69B4"),
+            "normal_bottom": QColor("#FF1493"),
+            "hover_top": QColor("#FFB6C1"),
+            "hover_bottom": QColor("#FF69B4"),
+            "text": "#FFFFFF"
+        }
+
         logout_colors = {
             "normal_top": QColor("#D8BFD8"),
             "normal_bottom": QColor("#C7A4C7"),
@@ -119,6 +127,12 @@ class HomeWindow(QWidget):
         existingChatsButton.clicked.connect(
             self.parent.show_existing_chats_list)
         button_layout.addWidget(existingChatsButton, alignment=Qt.AlignCenter)
+
+        # Add Profile button
+        profileButton = GradientButton("My Profile", profile_colors, self)
+        profileButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        profileButton.clicked.connect(self.parent.show_profile)
+        button_layout.addWidget(profileButton, alignment=Qt.AlignCenter)
 
         logoutButton = GradientButton("Logout", logout_colors, self)
         logoutButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
