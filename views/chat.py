@@ -9,6 +9,7 @@ import time
 from components.message import MessageWidget
 from utils.websocket_client import PersistentWebSocketClient
 from utils.format import formatDate
+from config.config import SERVER
 
 
 class RoundedLineEdit(QLineEdit):
@@ -222,7 +223,7 @@ class ChatWindow(QWidget):
     def load_previous_chats(self):
         """Load the previous chats between the two users"""
         try:
-            uri = "http://127.0.0.1:8080/api/chats/messages"
+            uri = f"{SERVER}/api/chats/messages"
             params = {"senderUsername": self.current_username,
                       "receiverUsername": self.chat_username}
             response = requests.get(uri, params=params, timeout=5)
@@ -256,7 +257,6 @@ class ChatWindow(QWidget):
                     text = message.get("text", "")
                     time_str = message.get("time", "Unknown")
                     formatted_time_str = formatDate(time_str)
-                    print(formatted_time_str)
                     is_own_message = (sender == self.current_username)
                     self.add_message(
                         sender, text, formatted_time_str, is_own_message)

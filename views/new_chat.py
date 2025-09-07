@@ -6,6 +6,7 @@ import requests
 import json
 import threading
 from utils.websocket_client import PersistentWebSocketClient
+from config.config import SERVER
 
 
 class RoundedLineEdit(QLineEdit):
@@ -236,7 +237,7 @@ class NewChatWindow(QWidget):
             return
 
         try:
-            uri = "http://127.0.0.1:8080/api/users"
+            uri = f"{SERVER}/api/users"
             params = {"username": username}
             response = requests.get(uri, params=params, timeout=5)
             response.raise_for_status()

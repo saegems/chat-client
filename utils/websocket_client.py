@@ -1,9 +1,9 @@
-# utils/websocket_client.py
 import websocket
 import json
 import threading
 import time
 from PyQt5.QtCore import QObject, pyqtSignal
+from config.config import WEBSOCKET_SERVER
 
 
 class PersistentWebSocketClient(QObject):
@@ -27,8 +27,7 @@ class PersistentWebSocketClient(QObject):
             return True
 
         try:
-            websocket_server_uri = "ws://localhost:8000"
-            print(f"Connecting to WebSocket server: {websocket_server_uri}")
+            websocket_server_uri = f"{WEBSOCKET_SERVER}"
 
             self.ws = websocket.WebSocketApp(
                 websocket_server_uri,
@@ -96,7 +95,7 @@ class PersistentWebSocketClient(QObject):
             self.reconnect_attempts += 1
             print(f"Attempting to reconnect ({
                   self.reconnect_attempts}/{self.max_reconnect_attempts})")
-            time.sleep(2)  # Wait before reconnecting
+            time.sleep(2)
             self.connect(self.receiver_username)
 
     def send_message(self, receiver_username, message):
@@ -113,7 +112,6 @@ class PersistentWebSocketClient(QObject):
                 "message": message
             }
             self.ws.send(json.dumps(message_data))
-            print(f"Message sent to {receiver_username}: {message}")
             return True
         except Exception as e:
             print(f"Error sending message: {e}")

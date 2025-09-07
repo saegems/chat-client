@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 import requests
 import json
 from utils.ip_utils import get_local_ip
+from config.config import SERVER
 
 
 class RoundedLineEdit(QLineEdit):
@@ -203,7 +204,7 @@ class LoginWindow(QWidget):
         }
 
         try:
-            uri = "http://127.0.0.1:8080/api/users/login"
+            uri = f"{SERVER}/api/users/login"
             response = requests.post(uri, json=data, timeout=5)
             response.raise_for_status()
             response_data = {}

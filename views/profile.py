@@ -3,6 +3,7 @@ from PyQt5.QtGui import QFont, QPainter, QPainterPath, QLinearGradient, QColor, 
 from PyQt5.QtCore import Qt
 import requests
 import json
+from config.config import SERVER
 
 
 class RoundedLineEdit(QLineEdit):
@@ -369,7 +370,7 @@ class Profile(QWidget):
             return
 
         try:
-            uri = "http://127.0.0.1:8080/api/users/username"
+            uri = f"{SERVER}/api/users/username"
             params = {"oldUsername": self.parent.get_username(),
                       "newUsername": new_username}
             response = requests.put(uri, params=params, timeout=5)
@@ -418,7 +419,7 @@ class Profile(QWidget):
             return
 
         try:
-            uri = "http://127.0.0.1:8080/api/users/password"
+            uri = f"{SERVER}/api/users/password"
             params = {"username": self.parent.get_username(),
                       "oldPassword": current_password,
                       "newPassword": new_password}

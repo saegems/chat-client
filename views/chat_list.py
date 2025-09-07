@@ -5,6 +5,7 @@ import requests
 import json
 from components.chat_list_item import ChatListItem
 from views.chat import ChatWindow
+from config.config import SERVER
 
 
 class ChatList(QWidget):
@@ -121,7 +122,7 @@ class ChatList(QWidget):
         self.chats_error.hide()
 
         try:
-            uri = "http://127.0.0.1:8080/api/chats"
+            uri = f"{SERVER}/api/chats"
             params = {"username": username}
             response = requests.get(uri, params=params, timeout=5)
             response.raise_for_status()
@@ -130,7 +131,6 @@ class ChatList(QWidget):
             if response.content:
                 try:
                     response_data = response.json()
-                    print(response_data)
                 except json.JSONDecodeError:
                     print("Response is not valid JSON")
                     self.show_error("Invalid response from server")
