@@ -197,7 +197,7 @@ class SignupWindow(QWidget):
 
         try:
             uri = f"{SERVER}/api/users/register"
-            response = requests.post(uri, json=data, timeout=5)
+            response = requests.post(uri, json=data, timeout=10000)
             response.raise_for_status()
             response_data = {}
 
