@@ -124,7 +124,7 @@ class ChatList(QWidget):
         try:
             uri = f"{SERVER}/api/chats"
             params = {"username": username}
-            response = requests.get(uri, params=params, timeout=5)
+            response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
             response_data = {}
