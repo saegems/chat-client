@@ -226,7 +226,7 @@ class ChatWindow(QWidget):
             uri = f"{SERVER}/api/chats/messages"
             params = {"senderUsername": self.current_username,
                       "receiverUsername": self.chat_username}
-            response = requests.get(uri, params=params, timeout=5)
+            response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
             response_data = {}
