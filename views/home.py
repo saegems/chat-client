@@ -1,6 +1,9 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy
 from PyQt5.QtGui import QFont, QPainter, QPainterPath, QLinearGradient, QColor, QPalette, QIcon
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtCore import QUrl
+from config.config import FEEDBACK_PAGE_URL
 
 
 class GradientButton(QPushButton):
@@ -128,7 +131,6 @@ class HomeWindow(QWidget):
             self.parent.show_existing_chats_list)
         button_layout.addWidget(existingChatsButton, alignment=Qt.AlignCenter)
 
-        # Add Profile button
         profileButton = GradientButton("My Profile", profile_colors, self)
         profileButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         profileButton.clicked.connect(self.parent.show_profile)
@@ -138,6 +140,25 @@ class HomeWindow(QWidget):
         logoutButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         logoutButton.clicked.connect(self.logout)
         button_layout.addWidget(logoutButton, alignment=Qt.AlignCenter)
+
+        # Add clickable share link
+        link = FEEDBACK_PAGE_URL
+        share_label = QLabel(f'Share your experience with us at: <a href={
+                             link}" style="color:6A5ACD; text-decoration: none;">{link}</a>')
+        share_label.setFont(QFont("Segoe UI", 10))
+        share_label.setAlignment(Qt.AlignCenter)
+        share_label.setStyleSheet("""
+            background: transparent;
+            margin-top: 15px;
+            color: #6A5ACD;
+        """)
+        share_label.setTextFormat(
+            Qt.RichText)  # Explicitly set to RichText for HTML rendering
+        # Allow clicking the link to open in browser
+        share_label.setOpenExternalLinks(True)
+        # Set cursor to pointing hand for link
+        share_label.setCursor(Qt.PointingHandCursor)
+        button_layout.addWidget(share_label, alignment=Qt.AlignCenter)
 
         main_layout.addWidget(button_container)
 
