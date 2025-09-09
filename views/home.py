@@ -141,23 +141,15 @@ class HomeWindow(QWidget):
         logoutButton.clicked.connect(self.logout)
         button_layout.addWidget(logoutButton, alignment=Qt.AlignCenter)
 
-        # Add clickable share link
         link = FEEDBACK_PAGE_URL
-        share_label = QLabel(f'Share your experience with us at: <a href={
-                             link}" style="color:6A5ACD; text-decoration: none;">{link}</a>')
+        share_label = QLabel(f'Share your experience with us at: <a href="{
+                             link}" style="color:6A5ACD; text-decoration: underline;">{link}</a>')
+
         share_label.setFont(QFont("Segoe UI", 10))
         share_label.setAlignment(Qt.AlignCenter)
-        share_label.setStyleSheet("""
-            background: transparent;
-            margin-top: 15px;
-            color: #6A5ACD;
-        """)
-        share_label.setTextFormat(
-            Qt.RichText)  # Explicitly set to RichText for HTML rendering
-        # Allow clicking the link to open in browser
+        share_label.setStyleSheet("background: transparent; margin-top: 15px;")
+        # Enables clicking the link to open in browser
         share_label.setOpenExternalLinks(True)
-        # Set cursor to pointing hand for link
-        share_label.setCursor(Qt.PointingHandCursor)
         button_layout.addWidget(share_label, alignment=Qt.AlignCenter)
 
         main_layout.addWidget(button_container)
