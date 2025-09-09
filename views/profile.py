@@ -373,7 +373,7 @@ class Profile(QWidget):
             uri = f"{SERVER}/api/users/username"
             params = {"oldUsername": self.parent.get_username(),
                       "newUsername": new_username}
-            response = requests.put(uri, params=params, timeout=5)
+            response = requests.put(uri, params=params, timeout=10000)
             response.raise_for_status()
             response_data = {}
 
@@ -423,7 +423,7 @@ class Profile(QWidget):
             params = {"username": self.parent.get_username(),
                       "oldPassword": current_password,
                       "newPassword": new_password}
-            response = requests.put(uri, params=params, timeout=5)
+            response = requests.put(uri, params=params, timeout=10000)
             response.raise_for_status()
             response_data = {}
 
