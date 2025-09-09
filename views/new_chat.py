@@ -239,7 +239,7 @@ class NewChatWindow(QWidget):
         try:
             uri = f"{SERVER}/api/users"
             params = {"username": username}
-            response = requests.get(uri, params=params, timeout=5)
+            response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
             try:
