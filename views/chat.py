@@ -103,8 +103,8 @@ class ChatWindow(QWidget):
         palette.setBrush(QPalette.Window, gradient)
         self.setPalette(palette)
 
-        self.setMinimumSize(400, 500)
-        self.resize(450, 600)
+        self.setMinimumSize(800, 1200)
+        self.resize(800, 1200)
 
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
