@@ -45,8 +45,8 @@ class MainWindow(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        self.setMinimumSize(320, 480)
-        self.resize(320, 520)
+        self.setMinimumSize(600, 600)
+        self.resize(600, 600)
 
         self.central_widget = QWidget()
         self.central_widget.setObjectName("CentralWidget")
