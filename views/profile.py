@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 import requests
 import json
 from config.config import SERVER
+from utils.crypt import encrypt, decrypt, compress, decompress
 
 
 class RoundedLineEdit(QLineEdit):
@@ -371,8 +372,12 @@ class Profile(QWidget):
 
         try:
             uri = f"{SERVER}/api/users/username"
-            params = {"oldUsername": self.parent.get_username(),
-                      "newUsername": new_username}
+            encrypted_old_username = encrypt(self.parent.get_username())
+            compressed_old_username = compress(encrypted_old_username)
+            encrypted_new_username = encrypt(new_username)
+            compressed_new_username = compress(encrypted_new_username)
+            params = {"oldUsername": compressed_old_username,
+                      "newUsername": compressed_new_username}
             response = requests.put(uri, params=params, timeout=10000)
             response.raise_for_status()
             response_data = {}
@@ -420,9 +425,15 @@ class Profile(QWidget):
 
         try:
             uri = f"{SERVER}/api/users/password"
-            params = {"username": self.parent.get_username(),
-                      "oldPassword": current_password,
-                      "newPassword": new_password}
+            encrypted_username = encrypt(self.parent.get_username())
+            compressed_username = compress(encrypted_username)
+            encrypted_old_password = encrypt(current_password)
+            compressed_old_password = compress(encrypted_old_password)
+            encrypted_new_password = encrypt(new_password)
+            compressed_new_password = compress(encrypted_new_password)
+            params = {"username": compressed_username,
+                      "oldPassword": compressed_old_password,
+                      "newPassword": compressed_new_password}
             response = requests.put(uri, params=params, timeout=10000)
             response.raise_for_status()
             response_data = {}

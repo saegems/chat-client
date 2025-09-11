@@ -6,6 +6,7 @@ import json
 from components.chat_list_item import ChatListItem
 from views.chat import ChatWindow
 from config.config import SERVER
+from utils.crypt import encrypt, decrypt, compress, decompress
 
 
 class ChatList(QWidget):
@@ -123,7 +124,9 @@ class ChatList(QWidget):
 
         try:
             uri = f"{SERVER}/api/chats"
-            params = {"username": username}
+            encrypted_username = encrypt(username)
+            compressed_username = compress(encrypted_username)
+            params = {"username": compressed_username}
             response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
@@ -151,12 +154,17 @@ class ChatList(QWidget):
                 for chat in chats:
                     display_username = (
                         chat.get("receiver", {}).get("username", "Unknown")
-                        if chat.get("sender", {}).get("username") == username
+                        if chat.get("sender", {}).get("username") == compressed_username
                         else chat.get("sender", {}).get("username", "Unknown")
                     )
+                    encrypted_display_username = decompress(display_username)
+                    decrypted_display_username = decrypt(
+                        encrypted_display_username)
+                    encrypted_message = decompress(chat.get("text", ""))
+                    decrypted_message = decrypt(encrypted_message)
                     chat_item = ChatListItem(
-                        username=display_username,
-                        message=chat.get("text", ""),
+                        username=decrypted_display_username,
+                        message=decrypted_message,
                         time=chat.get("time", ""),
                         current_username=username,
                         parent=self

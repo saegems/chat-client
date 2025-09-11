@@ -10,6 +10,7 @@ from components.message import MessageWidget
 from utils.websocket_client import PersistentWebSocketClient
 from utils.format import formatDate
 from config.config import SERVER
+from utils.crypt import encrypt, decrypt, compress, decompress
 
 
 class RoundedLineEdit(QLineEdit):
@@ -84,7 +85,10 @@ class ChatWindow(QWidget):
         self.last_message_time = None
         self.pending_messages = {}
 
-        self.websocket_client = PersistentWebSocketClient(current_username)
+        encrypted_current_username = encrypt(current_username)
+        compressed_current_username = compress(encrypted_current_username)
+        self.websocket_client = PersistentWebSocketClient(
+            compressed_current_username)
         self.websocket_client.message_received.connect(
             self.handle_websocket_message)
         self.websocket_client.connection_status_changed.connect(
@@ -224,8 +228,12 @@ class ChatWindow(QWidget):
         """Load the previous chats between the two users"""
         try:
             uri = f"{SERVER}/api/chats/messages"
-            params = {"senderUsername": self.current_username,
-                      "receiverUsername": self.chat_username}
+            encrypted_current_username = encrypt(self.current_username)
+            compressed_current_username = compress(encrypted_current_username)
+            encrypted_chat_username = encrypt(self.chat_username)
+            compressed_chat_username = compress(encrypted_chat_username)
+            params = {"senderUsername": compressed_current_username,
+                      "receiverUsername": compressed_chat_username}
             response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
@@ -252,9 +260,11 @@ class ChatWindow(QWidget):
                     return
 
                 for message in messages:
-                    sender = message.get("sender", {}).get(
-                        "username", "Unknown")
-                    text = message.get("text", "")
+                    encrypted_sender = decompress(message.get(
+                        "sender", {}).get("username", "Unknown"))
+                    sender = decrypt(encrypted_sender)
+                    encrypted_text = decompress(message.get("text", ""))
+                    text = decrypt(encrypted_text)
                     time_str = message.get("time", "Unknown")
                     formatted_time_str = formatDate(time_str)
                     is_own_message = (sender == self.current_username)
@@ -275,7 +285,9 @@ class ChatWindow(QWidget):
 
     def connect_websocket(self):
         """Connect to WebSocket server"""
-        if not self.websocket_client.connect(self.chat_username):
+        encrypted_chat_username = encrypt(self.chat_username)
+        compressed_chat_username = compress(encrypted_chat_username)
+        if not self.websocket_client.connect(compressed_chat_username):
             self.add_message(
                 "System",
                 "Failed to connect to chat server. Messages may not be delivered.",
@@ -289,9 +301,12 @@ class ChatWindow(QWidget):
         if data.get("status") == "welcome":
             return
         if data.get("status") == "delivered":
-            sender = data.get("sender", "")
-            receiver = data.get("receiver", "")
-            message = data.get("message", "")
+            encrypted_sender = decompress(data.get("sender", ""))
+            sender = decrypt(encrypted_sender)
+            encrypted_receiver = decompress(data.get("receiver", ""))
+            receiver = decrypt(encrypted_receiver)
+            encrypted_message = decompress(data.get("message", ""))
+            message = decrypt(encrypted_message)
             time_str = data.get("time", "Now")
             formatted_time_str = formatDate(time_str)
 
@@ -308,15 +323,15 @@ class ChatWindow(QWidget):
                     "color: #4ECDC4; background: transparent;")
                 self.connection_status.setToolTip("Message delivered")
 
-        elif (data.get("sender") == self.chat_username and
-              data.get("receiver") == self.current_username and
+        elif (decrypt(decompress(data.get("sender", ""))) == self.chat_username and
+              decrypt(decompress(data.get("receiver", ""))) == self.current_username and
               data.get("status") != "delivered"):
-            sender = data.get("sender", "")
-            message = data.get("message", "")
+            encrypted_sender = decompress(data.get("sender", ""))
+            sender = decrypt(encrypted_sender)
+            encrypted_message = decompress(data.get("message", ""))
+            message = decrypt(encrypted_message)
             time_str = data.get("time", "Now")
             formatted_time_str = formatDate(time_str)
-
-            print(f"Adding incoming message from {sender}: {message}")
             self.add_message(sender, message, formatted_time_str, False)
 
     def update_connection_status(self, status, tooltip):
@@ -373,7 +388,11 @@ class ChatWindow(QWidget):
         self.connection_status.setToolTip("Sending message...")
         self.is_sending = True
 
-        if self.websocket_client.send_message(self.chat_username, message):
+        encrypted_message = encrypt(message)
+        compressed_message = compress(encrypted_message)
+        encrypted_chat_username = encrypt(self.chat_username)
+        compressed_chat_username = compress(encrypted_chat_username)
+        if self.websocket_client.send_message(compressed_chat_username, compressed_message):
             self.is_sending = False
         else:
             self.is_sending = False

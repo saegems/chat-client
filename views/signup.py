@@ -5,6 +5,7 @@ import requests
 import json
 from utils.ip_utils import get_local_ip
 from config.config import SERVER
+from utils.crypt import encrypt, compress
 
 
 class RoundedLineEdit(QLineEdit):
@@ -189,9 +190,15 @@ class SignupWindow(QWidget):
         if not password:
             self.password_error.setText("Password cannot be empty.")
             return
+
+        encrypted_username = encrypt(username)
+        compressed_username = compress(encrypted_username)
+        encrypted_password = encrypt(password)
+        compressed_password = compress(encrypted_password)
+
         data = {
-            "username": username,
-            "password": password,
+            "username": compressed_username,
+            "password": compressed_password,
             "ip": ip
         }
 
@@ -204,7 +211,6 @@ class SignupWindow(QWidget):
             if response.content:
                 try:
                     response_data = response.json()
-                    print(response_data)
                 except json.JSONDecodeError:
                     print("Response is not valid JSON")
             else:
