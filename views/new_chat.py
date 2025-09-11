@@ -6,6 +6,7 @@ import requests
 import json
 import threading
 from utils.websocket_client import PersistentWebSocketClient
+from utils.crypt import encrypt, compress
 from config.config import SERVER
 
 
@@ -238,7 +239,9 @@ class NewChatWindow(QWidget):
 
         try:
             uri = f"{SERVER}/api/users"
-            params = {"username": username}
+            encrypted_username = encrypt(username)
+            compressed_username = compress(encrypted_username)
+            params = {"username": compressed_username}
             response = requests.get(uri, params=params, timeout=10000)
             response.raise_for_status()
 
@@ -334,17 +337,26 @@ class NewChatWindow(QWidget):
             return
 
         if not self.websocket_client:
-            self.websocket_client = PersistentWebSocketClient(sender)
+            encrypted_sender = encrypt(sender)
+            compressed_sender = compress(encrypted_sender)
+            self.websocket_client = PersistentWebSocketClient(
+                compressed_sender)
             self.websocket_client.message_received.connect(
                 self.handle_websocket_message)
             self.websocket_client.error_occurred.connect(
                 self.handle_websocket_error)
 
-            if not self.websocket_client.connect(receiver):
+            encrypted_receiver = encrypt(receiver)
+            compressed_receiver = compress(encrypted_receiver)
+            if not self.websocket_client.connect(compressed_receiver):
                 self.error_message.setText("Failed to connect to chat server")
                 return
 
-        if self.websocket_client.send_message(receiver, message):
+        encrypted_message = encrypt(message)
+        compressed_message = compress(encrypted_message)
+        encrypted_receiver = encrypt(receiver)
+        compressed_receiver = compress(encrypted_receiver)
+        if self.websocket_client.send_message(compressed_receiver, compressed_message):
             self.error_message.setText("Sending message...")
             self.error_message.setStyleSheet(
                 "color: #FFD93D; background: transparent;")
